@@ -1,0 +1,46 @@
+{
+  "name": "react-animated-code",
+  "version": "0.1.0",
+  "description": "A react component that renders animated and syntax highlighted code.",
+  "author": "Ruben Paredes",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ruberoni/react-animated-code.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ruberoni/react-animated-code/issues"
+  },
+  "homepage": "https://github.com/Ruberoni/react-animated-code#readme",
+  "main": "index.tsx",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "animation",
+    "react",
+    "syntax",
+    "highlight",
+    "typescript"
+  ],
+  "dependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.17",
+    "@types/react": "^17.0.33",
+    "@types/react-dom": "^17.0.10",
+    "@typescript-eslint/eslint-plugin": "^5.11.0",
+    "@typescript-eslint/parser": "^5.11.0",
+    "@vitejs/plugin-react": "^1.0.7",
+    "eslint": "^8.9.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-react": "^7.28.0",
+    "prettier": "2.5.1",
+    "typescript": "^4.5.4",
+    "vite": "^2.8.0"
+  }
+}
