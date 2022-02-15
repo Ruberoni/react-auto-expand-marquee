@@ -12,7 +12,6 @@
     "url": "https://github.com/Ruberoni/react-animated-code/issues"
   },
   "homepage": "https://github.com/Ruberoni/react-animated-code#readme",
-  "main": "index.tsx",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -27,9 +26,22 @@
     "highlight",
     "typescript"
   ],
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/react-animated-code.umd.js",
+  "module": "./dist/react-animated-code.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/react-animated-code.es.js",
+      "require": "./dist/react-animated-code.umd.js"
+    }
+  },
   "dependencies": {
+    "@react-spring/web": "^9.4.3",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "react-syntax-highlighter": "^15.4.5"
   },
   "devDependencies": {
     "@babel/core": "^7.17.2",
@@ -42,6 +54,7 @@
     "@types/node": "^17.0.17",
     "@types/react": "^17.0.33",
     "@types/react-dom": "^17.0.10",
+    "@types/react-syntax-highlighter": "^13.5.2",
     "@typescript-eslint/eslint-plugin": "^5.11.0",
     "@typescript-eslint/parser": "^5.11.0",
     "@vitejs/plugin-react": "^1.0.7",

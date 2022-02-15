@@ -1,0 +1,1 @@
+export { default as AnimatedCode } from './AnimatedCode'

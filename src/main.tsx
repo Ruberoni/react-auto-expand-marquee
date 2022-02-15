@@ -1,11 +1,16 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import './index.css'
-import App from './App'
+import AnimatedCode from './AnimatedCode'
+
+const codeString = `  const b = (num) => num + 1;
+  const a = 5;`;
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <AnimatedCode>
+      {codeString}
+      <p>Hola</p>
+    </AnimatedCode>
   </React.StrictMode>,
   document.getElementById('root')
 )
