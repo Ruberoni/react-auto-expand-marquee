@@ -4,6 +4,7 @@ import {
   SyntaxHighlighterProps,
 } from "react-syntax-highlighter";
 import js from "react-syntax-highlighter/dist/esm/languages/hljs/javascript";
+import "./AnimatedCode.css";
 
 SyntaxHighlighter.registerLanguage("javascript", js);
 
@@ -70,7 +71,8 @@ export interface AnimatedCodeProps extends SyntaxHighlighterProps {
 /**
  * @todo
  * - [X] [DONE] Make it work with any parent component
- * - Have two rows moving simultaneously
+ * - [X] [DONE] Have two rows moving
+ * - Every row moves at the same speed.
  * - Achieve infite loop
  * - Move each row independently
  * - Adjust when parent width changes
@@ -87,7 +89,7 @@ function AnimatedCode({
   ...syntaxHighlighterProps
 }: AnimatedCodeProps) {
   // console.log("🚀 ~ file: AnimatedCode.tsx ~ line 40 ~ children", children);
-  const [isVisible, setIsVisible] = useState(false);
+  const [play, setPlay] = useState(false);
   /**
    * Will store the main text refs of each row.\
    * Later used to calculate how many will fit in the container
@@ -108,7 +110,14 @@ function AnimatedCode({
   >([]);
   // console.log("🚀 ~ file: AnimatedCode.tsx ~ line 48 ~ codeLines", codeLines);
 
-  const moveRightStyle = getMoveRightStyles(containerRef.current)
+  const scrollAnimationStyles = React.useMemo(
+    () => getScrollAnimationStyles(containerRef.current, play),
+    [play]
+  );
+  console.log(
+    "🚀 ~ file: AnimatedCode.tsx ~ line 114 ~ scrollAnimationStyles",
+    scrollAnimationStyles
+  );
 
   // TESTING
   useEffect(() => {
@@ -160,7 +169,7 @@ function AnimatedCode({
   }, []);
 
   const handleOnClick = () => {
-    setIsVisible(!isVisible);
+    setPlay(!play);
   };
   // START TESTING
   const logRef = () =>
@@ -175,7 +184,7 @@ function AnimatedCode({
   // END TESTING
   return (
     <div>
-      <div style={{ overflow: "hidden", width: '50%' }} ref={containerRef}>
+      <div style={styles.container} ref={containerRef}>
         {codeLines?.map(({ text, ..._syntaxHighlighterProps }, i) => {
           console.log("[codeLines][map] i:", i);
           console.log(
@@ -190,14 +199,12 @@ function AnimatedCode({
                 individualTextElementsRefs.current[i] = ref;
               },
               style: {
-                // visibility: "hidden",
-                // display: 'none',
                 width: "fit-content",
               },
             },
             text
           );
-          const totalTextElements = [];
+          const totalTextElements: React.ReactElement[] = [];
           if (elementsToFitContainer[i]) {
             for (let j = 0; j < elementsToFitContainer[i] - 1; j++) {
               totalTextElements.push(
@@ -205,21 +212,33 @@ function AnimatedCode({
               );
             }
           }
+
+          // eslint-disable-next-line react/display-name
+          const RowItem = React.forwardRef<HTMLDivElement>((props, ref) => (
+            <div
+              style={{
+                display: "flex",
+                flex: "0 0 auto",
+                width: "max-content",
+                ...scrollAnimationStyles,
+              }}
+              // className='scrollAnimationStyles'
+              ref={ref}
+              {...props}
+            >
+              {IndividualTextElement} {totalTextElements.map((el) => el)}
+            </div>
+          ));
+
           return (
-            <div key={i}>
-              <div
-                style={{
-                  display: "flex",
-                  width: "max-content",
-                  ...(isVisible && moveRightStyle),
-                }}
+            <div style={styles.row} key={i}>
+              <RowItem
                 ref={(ref) => {
                   if (!ref) return;
                   rightmostRefs.current[i] = ref;
                 }}
-              >
-                {IndividualTextElement} {totalTextElements.map((el) => el)}
-              </div>
+              />
+              <RowItem />
             </div>
           );
         })}
@@ -238,11 +257,27 @@ function AnimatedCode({
 
 export default AnimatedCode;
 
-const getMoveRightStyles = (container: HTMLElement | null) => {
-  if (!container) return {}
+const getScrollAnimationStyles = (
+  container: HTMLElement | null,
+  play = false
+) => {
+  if (!container) return {};
   const { width: containerWidth } = container.getBoundingClientRect();
   return {
-    transform: `translateX(${containerWidth}px)`,
-    transition: `transform ${SPEED_CONSTANT * containerWidth}s linear`,
+    animation: `scroll ${SPEED_CONSTANT * containerWidth}s linear 0s infinite`,
+    animationPlayState: play ? "paused" : "running",
   };
+};
+
+const styles: Record<string, React.CSSProperties> = {
+  container: {
+    overflowX: "hidden",
+    width: "50%",
+  },
+  row: {
+    overflowX: 'hidden',
+    display: 'flex',
+    flexDirection: 'row',
+    width: '100%'
+  }
 };
