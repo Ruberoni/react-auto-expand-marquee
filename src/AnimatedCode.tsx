@@ -5,65 +5,14 @@ import {
 } from "react-syntax-highlighter";
 import js from "react-syntax-highlighter/dist/esm/languages/hljs/javascript";
 import "./AnimatedCode.css";
+import {
+  getCodeLines,
+  getHowManyFitIn,
+  getScrollAnimationStyles,
+} from "./utils";
 
 SyntaxHighlighter.registerLanguage("javascript", js);
 
-const SPEED_CONSTANT = 35 / 1920; // ~ 0.01823
-
-/**
- * Returns only the components that are strings
- */
-function getStringComponentsOrChildren(components: ReactNode) {
-  if (typeof components === "string") return [components];
-  if (Array.isArray(components)) {
-    return components?.filter(
-      (comp) =>
-        typeof comp.props?.children === "string" || typeof comp === "string"
-    );
-  }
-  return [];
-}
-
-export interface ICodeLine extends SyntaxHighlighterProps {
-  text: string;
-}
-
-/**
- * Transforms a component into ICodeLines[]
- */
-const getCodeLines = (
-  component: ReactNode | string
-): ICodeLine[] | undefined => {
-  if (typeof component === "string") {
-    return component.split("\n").map((text) => ({
-      text,
-    }));
-  } else if (
-    React.isValidElement(component) &&
-    typeof component.props.children === "string"
-  ) {
-    return component.props.children.split("\n").map((text: string) => ({
-      text,
-      ...component.props,
-    }));
-  }
-
-  if (Array.isArray(component)) {
-    const stringComponents = getStringComponentsOrChildren(component);
-
-    const codeLines: ICodeLine[] = [];
-    stringComponents.forEach((comp) => {
-      const thisCodeLines = getCodeLines(comp);
-      if (thisCodeLines) codeLines.push(...thisCodeLines);
-    });
-    return codeLines;
-  }
-};
-
-function getHowManyFitIn(base: HTMLElement, target: HTMLElement) {
-  const { width: targetWidth } = target.getBoundingClientRect();
-  return Math.ceil(targetWidth / base.offsetWidth);
-}
 export interface AnimatedCodeProps extends SyntaxHighlighterProps {
   children: ReactNode;
 }
@@ -184,7 +133,7 @@ function AnimatedCode({
   // END TESTING
   return (
     <div>
-      <div style={styles.container} ref={containerRef}>
+      <div className="container" ref={containerRef}>
         {codeLines?.map(({ text, ..._syntaxHighlighterProps }, i) => {
           console.log("[codeLines][map] i:", i);
           console.log(
@@ -231,7 +180,7 @@ function AnimatedCode({
           ));
 
           return (
-            <div style={styles.row} key={i}>
+            <div className="row" key={i}>
               <RowItem
                 ref={(ref) => {
                   if (!ref) return;
@@ -256,28 +205,3 @@ function AnimatedCode({
 }
 
 export default AnimatedCode;
-
-const getScrollAnimationStyles = (
-  container: HTMLElement | null,
-  play = false
-) => {
-  if (!container) return {};
-  const { width: containerWidth } = container.getBoundingClientRect();
-  return {
-    animation: `scroll ${SPEED_CONSTANT * containerWidth}s linear 0s infinite`,
-    animationPlayState: play ? "paused" : "running",
-  };
-};
-
-const styles: Record<string, React.CSSProperties> = {
-  container: {
-    overflowX: "hidden",
-    width: "50%",
-  },
-  row: {
-    overflowX: 'hidden',
-    display: 'flex',
-    flexDirection: 'row',
-    width: '100%'
-  }
-};
