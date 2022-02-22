@@ -21,8 +21,8 @@ export interface AnimatedCodeProps extends SyntaxHighlighterProps {
  * @todo
  * - [X] [DONE] Make it work with any parent component
  * - [X] [DONE] Have two rows moving
- * - Every row moves at the same speed.
- * - Achieve infite loop
+ * - [X] [DONE] Every row moves at the same speed.
+ * - [X] [DONE] Achieve infite loop
  * - Move each row independently
  * - Adjust when parent width changes
  *
@@ -59,15 +59,6 @@ function AnimatedCode({
   >([]);
   // console.log("🚀 ~ file: AnimatedCode.tsx ~ line 48 ~ codeLines", codeLines);
 
-  const scrollAnimationStyles = React.useMemo(
-    () => getScrollAnimationStyles(containerRef.current, play),
-    [play]
-  );
-  console.log(
-    "🚀 ~ file: AnimatedCode.tsx ~ line 114 ~ scrollAnimationStyles",
-    scrollAnimationStyles
-  );
-
   // TESTING
   useEffect(() => {
     console.log(
@@ -78,8 +69,6 @@ function AnimatedCode({
 
   useEffect(() => {
     if (containerRef.current) {
-      const containerRect = containerRef.current.getBoundingClientRect();
-
       // START TESTING
       individualTextElementsRefs.current.forEach((element) =>
         console.log(
@@ -96,24 +85,6 @@ function AnimatedCode({
       );
 
       setElementsToFitContainer(_elementsToFitContainer);
-
-      const intervalID = setInterval(() => {
-        if (!rightmostRefs.current[0].getBoundingClientRect) return;
-        const rightmostElementRect =
-          rightmostRefs.current[0].getBoundingClientRect();
-        if (rightmostElementRect.right > containerRect.width) {
-          // The
-        }
-        if (rightmostElementRect.left >= containerRect.width) {
-          // The last element is outside the container
-          // Steps
-          // 1. Remove it
-          // 2. Push a new element at first position (unshift)
-          console.log("The end has been reached");
-        }
-        //
-      }, 100);
-      return () => clearInterval(intervalID);
     }
   }, []);
 
@@ -140,19 +111,17 @@ function AnimatedCode({
             "[codeLines][map] elementsToFitContainer[i]:",
             elementsToFitContainer[i]
           );
-          const IndividualTextElement = React.createElement(
-            "p",
-            {
-              ref: (ref) => {
+          const IndividualTextElement = (
+            <p
+              ref={(ref) => {
                 if (!ref) return;
                 individualTextElementsRefs.current[i] = ref;
-              },
-              style: {
-                width: "fit-content",
-              },
-            },
-            text
+              }}
+            >
+              {text}
+            </p>
           );
+
           const totalTextElements: React.ReactElement[] = [];
           if (elementsToFitContainer[i]) {
             for (let j = 0; j < elementsToFitContainer[i] - 1; j++) {
@@ -161,6 +130,11 @@ function AnimatedCode({
               );
             }
           }
+
+          const scrollAnimationStyles = getScrollAnimationStyles(
+            rightmostRefs.current[i],
+            play
+          );
 
           // eslint-disable-next-line react/display-name
           const RowItem = React.forwardRef<HTMLDivElement>((props, ref) => (
@@ -171,7 +145,6 @@ function AnimatedCode({
                 width: "max-content",
                 ...scrollAnimationStyles,
               }}
-              // className='scrollAnimationStyles'
               ref={ref}
               {...props}
             >
