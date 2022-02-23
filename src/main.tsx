@@ -7,7 +7,7 @@ const codeString = `  const b = (num) => num + 1;
 
 ReactDOM.render(
   <React.StrictMode>
-    <AnimatedCode>
+    <AnimatedCode animationConfig={{mix: true}}>
       {codeString}
       <p>Hola</p>
     </AnimatedCode>

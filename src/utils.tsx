@@ -1,10 +1,14 @@
-import React, { ReactNode } from "react";
+import React, { ReactElement, ReactNode } from "react";
 import { SyntaxHighlighterProps } from "react-syntax-highlighter";
 
 const SPEED_CONSTANT = 35 / 1920; // ~ 0.01823
 
 export interface ICodeLine extends SyntaxHighlighterProps {
   text: string;
+}
+
+export interface IAnimationStylesConfig {
+  reverse: boolean
 }
 
 /**
@@ -51,22 +55,36 @@ export function getCodeLines(
     });
     return codeLines;
   }
-};
-
+}
 
 export function getHowManyFitIn(base: HTMLElement, target: HTMLElement) {
   const { width: targetWidth } = target.getBoundingClientRect();
   return Math.ceil(targetWidth / base.offsetWidth);
 }
 
+const defaultAnimationStylesConfig: IAnimationStylesConfig = {
+  reverse: false
+}
+
 export function getScrollAnimationStyles(
   container: HTMLElement | null,
-  play = false
+  play = false,
+  config = defaultAnimationStylesConfig
 ) {
   if (!container) return {};
   const { width: containerWidth } = container.getBoundingClientRect();
   return {
     animation: `scroll ${SPEED_CONSTANT * containerWidth}s linear 0s infinite`,
     animationPlayState: play ? "paused" : "running",
+    animationDirection: config.reverse ? "reverse" : "normal",
   };
-};
+}
+
+/**
+ * Returns an array of *`length`* elements *`el`* 
+ */
+export function getClonesComponentsArray(el: ReactElement, length: number) {
+  if (length < 1) return []
+  return Array.from(Array(length))
+    .map((_, i) => React.cloneElement(el, { key: i }));
+}
