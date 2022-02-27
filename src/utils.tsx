@@ -8,7 +8,8 @@ export interface ICodeLine extends SyntaxHighlighterProps {
 }
 
 export interface IAnimationStylesConfig {
-  reverse: boolean
+  reverse: boolean;
+  play: boolean;
 }
 
 /**
@@ -63,20 +64,20 @@ export function getHowManyFitIn(base: HTMLElement, target: HTMLElement) {
 }
 
 const defaultAnimationStylesConfig: IAnimationStylesConfig = {
-  reverse: false
+  reverse: false,
+  play: false
 }
 
 export function getScrollAnimationStyles(
   container: HTMLElement | null,
-  play = false,
   config = defaultAnimationStylesConfig
 ) {
   if (!container) return {};
   const { width: containerWidth } = container.getBoundingClientRect();
   return {
-    animation: `scroll ${SPEED_CONSTANT * containerWidth}s linear 0s infinite`,
-    animationPlayState: play ? "paused" : "running",
-    animationDirection: config.reverse ? "reverse" : "normal",
+    animation: `${config.reverse ? 'scrollReverse' : 'scroll'} ${SPEED_CONSTANT * containerWidth}s linear 0s infinite`,
+    animationPlayState: config.play ? "paused" : "running",
+    animationDirection: "normal",
   };
 }
 

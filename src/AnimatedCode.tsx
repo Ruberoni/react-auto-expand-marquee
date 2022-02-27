@@ -32,8 +32,8 @@ const defaultAnimationConfig: IAnimationConfig = {
  * - [X] [DONE] Have two rows moving
  * - [X] [DONE] Every row moves at the same speed.
  * - [X] [DONE] Achieve infite loop
- * - Move rows interleaved
- * - Adjust when parent width changes
+ * - [X] [DONE] Move rows interleaved
+ * - [X] [DONE] Adjust when parent width changes
  *
  * - Use SyntaxHighlighter
  * - [Maybe] change this component name to AnimatedText (or similiar)
@@ -78,25 +78,26 @@ function AnimatedCode({
     );
   }, [elementsToFitContainer]);
 
-  useEffect(() => {
-    if (containerRef.current) {
-      // START TESTING
-      individualTextElementsRefs.current.forEach((element) =>
-        console.log(
-          `Element text "${element.innerText}", width: ${element.offsetWidth}`
-        )
-      );
-      // END TESTING
-
-      const _elementsToFitContainer = individualTextElementsRefs.current.map(
-        (element) => {
-          if (!containerRef.current) return 0; // <- Dont know why TS gives error without this line
-          return getHowManyFitIn(element, containerRef.current);
-        }
-      );
+  function calculateRowsWidth() {
+    const _elementsToFitContainer = individualTextElementsRefs.current.map(
+      (element) => {
+        if (!containerRef.current) return 0; // <- Dont know why TS gives error without this line
+        return getHowManyFitIn(element, containerRef.current);
+      }
+    );
 
       setElementsToFitContainer(_elementsToFitContainer);
+  }
+
+  useEffect(() => {
+    if (containerRef.current) {
+      calculateRowsWidth()
     }
+    window.addEventListener("resize", calculateRowsWidth);
+    return () => {
+      window.removeEventListener("resize", calculateRowsWidth);
+    };
+    
   }, []);
 
   const handleOnClick = () => {
@@ -136,8 +137,8 @@ function AnimatedCode({
 
           const scrollAnimationStyles = getScrollAnimationStyles(
             rowItemsRefs.current[i],
-            play,
             {
+              play,
               reverse
             }
           );
@@ -167,6 +168,7 @@ function AnimatedCode({
                   rowItemsRefs.current[i] = ref;
                 }}
               />
+              <RowItem />
               <RowItem />
             </div>
           );
