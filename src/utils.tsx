@@ -58,9 +58,14 @@ export function getCodeLines(
   }
 }
 
+/**
+ * Returns how many `base` elements fits in `target` element 
+ */
 export function getHowManyFitIn(base: HTMLElement, target: HTMLElement) {
   const { width: targetWidth } = target.getBoundingClientRect();
-  return Math.ceil(targetWidth / base.offsetWidth);
+  const { width: baseWidth } = base.getBoundingClientRect();
+  if (baseWidth < 1) throw new Error("[getHowManyFitIn] `baseWidth` cannot be smaller than 1");
+  return Math.ceil(targetWidth / baseWidth);
 }
 
 const defaultAnimationStylesConfig: IAnimationStylesConfig = {
@@ -71,12 +76,17 @@ const defaultAnimationStylesConfig: IAnimationStylesConfig = {
 export function getScrollAnimationStyles(
   container: HTMLElement | null,
   config = defaultAnimationStylesConfig
-) {
+): React.CSSProperties {
   if (!container) return {};
   const { width: containerWidth } = container.getBoundingClientRect();
   return {
-    animation: `${config.reverse ? 'scrollReverse' : 'scroll'} ${SPEED_CONSTANT * containerWidth}s linear 0s infinite`,
+    animationName: config.reverse ? 'scrollReverse' : 'scroll',
+    animationDuration: SPEED_CONSTANT * containerWidth + 's',
     animationPlayState: config.play ? "paused" : "running",
+
+    animationTimingFunction: 'linear',
+    animationDelay: '0',
+    animationIterationCount: 'infinite',
     animationDirection: "normal",
   };
 }
@@ -84,8 +94,9 @@ export function getScrollAnimationStyles(
 /**
  * Returns an array of *`length`* elements *`el`* 
  */
-export function getClonesComponentsArray(el: ReactElement, length: number) {
+export function getClonesComponentsArray(el: ReactElement, length: number, keySuffix: string) {
+  console.log("🚀 ~ file: utils.tsx ~ line 93 ~ getClonesComponentsArray ~ length", length)
   if (length < 1) return []
   return Array.from(Array(length))
-    .map((_, i) => React.cloneElement(el, { key: i }));
+    .map((_, i) => React.cloneElement(el, { key: `${keySuffix}-${i}` }));
 }

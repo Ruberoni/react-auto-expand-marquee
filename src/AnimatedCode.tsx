@@ -23,18 +23,13 @@ export interface AnimatedCodeProps extends SyntaxHighlighterProps {
 }
 
 const defaultAnimationConfig: IAnimationConfig = {
-  mix: false
-}
+  mix: false,
+};
 
 /**
  * @todo
- * - [X] [DONE] Make it work with any parent component
- * - [X] [DONE] Have two rows moving
- * - [X] [DONE] Every row moves at the same speed.
- * - [X] [DONE] Achieve infite loop
- * - [X] [DONE] Move rows interleaved
- * - [X] [DONE] Adjust when parent width changes
- *
+ * - [BUG] Changing window size doesnt update speed
+ * 
  * - Use SyntaxHighlighter
  * - [Maybe] change this component name to AnimatedText (or similiar)
  * and make it only work in its most simpler way with plain text, but sufficiently
@@ -49,12 +44,14 @@ function AnimatedCode({
   ...syntaxHighlighterProps
 }: AnimatedCodeProps) {
   // console.log("🚀 ~ file: AnimatedCode.tsx ~ line 40 ~ children", children);
-  const [play, setPlay] = useState(false);
+  const [play, setPlay] = useState(true);
+  const [rendered, setRendered] = useState(false);
   /**
    * Will store the main text refs of each row.\
    * Later used to calculate how many will fit in the container
    */
   const individualTextElementsRefs = React.useRef<HTMLElement[]>([]);
+  const [baseRowItemsWidth, setBaseRowItemsWidth] = useState<number[]>([])
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   const rowItemsRefs = React.useRef<HTMLDivElement[]>([]);
@@ -70,35 +67,37 @@ function AnimatedCode({
   >([]);
   // console.log("🚀 ~ file: AnimatedCode.tsx ~ line 48 ~ codeLines", codeLines);
 
-  // TESTING
-  useEffect(() => {
-    console.log(
-      "🚀 ~ file: AnimatedCode.tsx ~ line 97 ~ elementsToFitContainer",
-      elementsToFitContainer
-    );
-  }, [elementsToFitContainer]);
-
   function calculateRowsWidth() {
-    const _elementsToFitContainer = individualTextElementsRefs.current.map(
-      (element) => {
-        if (!containerRef.current) return 0; // <- Dont know why TS gives error without this line
-        return getHowManyFitIn(element, containerRef.current);
+    const _elementsToFitContainer = baseRowItemsWidth.map(
+      (baseRowItemWidth) => {
+        if (!containerRef.current) {
+          return 0
+        }
+        const { width: targetWidth } = containerRef.current.getBoundingClientRect();
+        return Math.ceil(targetWidth / baseRowItemWidth);
       }
     );
-
-      setElementsToFitContainer(_elementsToFitContainer);
+    setElementsToFitContainer(_elementsToFitContainer);
   }
 
   useEffect(() => {
-    if (containerRef.current) {
-      calculateRowsWidth()
-    }
+    setBaseRowItemsWidth(individualTextElementsRefs.current.map(
+      (element) => element.getBoundingClientRect().width
+    ))
+  }, [])
+
+  useEffect(() => {
+    setRendered(true);
+    
     window.addEventListener("resize", calculateRowsWidth);
     return () => {
       window.removeEventListener("resize", calculateRowsWidth);
     };
-    
-  }, []);
+  });
+
+  useEffect(() => {
+    calculateRowsWidth();
+  }, [baseRowItemsWidth])
 
   const handleOnClick = () => {
     setPlay(!play);
@@ -116,61 +115,36 @@ function AnimatedCode({
   // END TESTING
   return (
     <div>
+      {rendered && <h1>First render</h1>}
       <div className="container" ref={containerRef}>
-        {codeLines?.map(({ text, ..._syntaxHighlighterProps }, i) => {
-          const IndividualTextElement = (
-            <p
-              ref={(ref) => {
-                if (!ref) return;
-                individualTextElementsRefs.current[i] = ref;
-              }}
-            >
-              {text}
-            </p>
-          );
-
-          const totalTextElements = elementsToFitContainer[i]
-            ? getClonesComponentsArray(IndividualTextElement, elementsToFitContainer[i] - 1)
-            : [IndividualTextElement]
-
-          const reverse = animationConfig.mix && Boolean(i % 2 === 0)
+        {codeLines?.map(({ text }, i) => {
+          const reverse = animationConfig.mix && Boolean(i % 2 === 0);
 
           const scrollAnimationStyles = getScrollAnimationStyles(
             rowItemsRefs.current[i],
             {
               play,
-              reverse
+              reverse,
             }
           );
-
-          // eslint-disable-next-line react/display-name
-          const RowItem = React.forwardRef<HTMLDivElement>((props, ref) => (
-            <div
-              style={{
-                display: "flex",
-                flex: "0 0 auto",
-                width: "max-content",
-                
-                ...scrollAnimationStyles,
-              }}
-              ref={ref}
-              {...props}
-            >
-              {totalTextElements.map((el) => el)}
-            </div>
-          ));
-
           return (
-            <div className="row" style={reverse ? {flexDirection: 'row-reverse',} : {}} key={i}>
-              <RowItem
-                ref={(ref) => {
-                  if (!ref) return;
-                  rowItemsRefs.current[i] = ref;
-                }}
-              />
-              <RowItem />
-              <RowItem />
-            </div>
+            <Row
+              key={i}
+              text={text}
+              textsAmount={elementsToFitContainer[i]}
+              style={scrollAnimationStyles}
+              textElementRef={(ref) => {
+                if (!ref) return;
+                individualTextElementsRefs.current[i] = ref;
+              }}
+              rowItemRef={(ref) => {
+                if (!ref) return;
+                rowItemsRefs.current[i] = ref;
+              }}
+              containerProps={{
+                style: reverse ? { flexDirection: "row-reverse" } : {},
+              }}
+            />
           );
         })}
       </div>
@@ -185,5 +159,87 @@ function AnimatedCode({
     </div>
   );
 }
+
+const RowItem = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLProps<HTMLDivElement>
+>(({ children, ...divProps }, ref) => (
+  <div
+    {...divProps}
+    style={{
+      display: "flex",
+      flex: "0 0 auto",
+      width: "max-content",
+      ...divProps.style,
+    }}
+    ref={ref}
+  >
+    {children}
+  </div>
+));
+
+RowItem.displayName = "RowItem";
+
+export interface CodeLineProps
+  extends Omit<React.HTMLProps<HTMLDivElement>, "ref"> {
+  textElementRef: React.ClassAttributes<HTMLParagraphElement>["ref"];
+  rowItemRef: React.Ref<HTMLDivElement>;
+  text: string;
+  textsAmount: number;
+  containerProps: React.HTMLProps<HTMLDivElement>;
+}
+
+/**
+ * Renders 2 `RowItem`, one besides the other, in a container that doesn't break.\
+ * Each `RowItem` has `textsAmount` elements with `text`.
+ */
+const Row = ({
+  text,
+  textsAmount,
+  containerProps,
+  textElementRef,
+  rowItemRef,
+  ...divProps
+}: CodeLineProps) => {
+  const [state, setState] = useState<null | React.ReactElement[][]>(null);
+
+  const IndividualTextElement = <p ref={textElementRef}>{text}</p>;
+  useEffect(() => {
+    if (textsAmount) {
+      setState([
+        [IndividualTextElement, ...getClonesComponentsArray(
+          <p>{text}</p>,
+          textsAmount - 1,
+          "row-1"
+        )],
+        getClonesComponentsArray(
+          <p>{text}</p>,
+          textsAmount,
+          "row-2"
+        ),
+        getClonesComponentsArray(
+          <p>{text}</p>,
+          textsAmount,
+          "row-3"
+        ),
+      ]);
+    }
+  }, [textsAmount]);
+
+  return (
+    <div className="row" {...containerProps}>
+      {!state ? (
+        IndividualTextElement
+      ) : (
+        <>
+          <RowItem ref={rowItemRef} {...divProps}>
+            {state[1]}
+          </RowItem>
+          <RowItem {...divProps}>{state[2]}</RowItem>
+        </>
+      )}
+    </div>
+  );
+};
 
 export default AnimatedCode;
