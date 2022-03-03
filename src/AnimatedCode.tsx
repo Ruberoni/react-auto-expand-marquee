@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactElement, ReactNode, useEffect, useMemo, useState } from "react";
 import {
   Light as SyntaxHighlighter,
   SyntaxHighlighterProps,
@@ -68,25 +68,28 @@ function AnimatedCode({
   // console.log("🚀 ~ file: AnimatedCode.tsx ~ line 48 ~ codeLines", codeLines);
 
   function calculateRowsWidth() {
+    console.log("🚀 ~ file: AnimatedCode.tsx ~ line 80 ~ calculateRowsWidth ~ baseRowItemsWidth", baseRowItemsWidth);
     const _elementsToFitContainer = baseRowItemsWidth.map(
       (baseRowItemWidth) => {
         if (!containerRef.current) {
           return 0
         }
         const { width: targetWidth } = containerRef.current.getBoundingClientRect();
-        return Math.ceil(targetWidth / baseRowItemWidth);
+        return Math.ceil(targetWidth / baseRowItemWidth)
       }
     );
     setElementsToFitContainer(_elementsToFitContainer);
   }
 
   useEffect(() => {
-    setBaseRowItemsWidth(individualTextElementsRefs.current.map(
+    console.log('FIRST RENDER')
+    baseRowItemsWidth[0] || setBaseRowItemsWidth(individualTextElementsRefs.current.map(
       (element) => element.getBoundingClientRect().width
-    ))
-  }, [])
-
+      ))
+    }, [])
+    
   useEffect(() => {
+    console.log('RENDER')
     setRendered(true);
     
     window.addEventListener("resize", calculateRowsWidth);
@@ -111,11 +114,11 @@ function AnimatedCode({
     console.log(
       "[AnimatedCode][loglogRowItemsRefsBoundingRect] rowItemsRefs[0].getBoundingClientRect()",
       rowItemsRefs.current[0].getBoundingClientRect()
-    );
+    )
   // END TESTING
   return (
     <div>
-      {rendered && <h1>First render</h1>}
+      {/* {rendered && <h1>First render</h1>} */}
       <div className="container" ref={containerRef}>
         {codeLines?.map(({ text }, i) => {
           const reverse = animationConfig.mix && Boolean(i % 2 === 0);
@@ -148,6 +151,20 @@ function AnimatedCode({
           );
         })}
       </div>
+      {codeLines?.map(({ text }, i) => {
+        const reverse = animationConfig.mix && Boolean(i % 2 === 0);
+        const scrollAnimationStyles = (w: number) => getScrollAnimationStyles(
+          w,
+          {
+            play,
+            reverse,
+          }
+        );
+        return (
+        <ExpandableComponent rowStyle={scrollAnimationStyles} key={`EC-ROOT-${i}`} style={{backgroundColor: 'lightblue', width: '50%'}} duplicateTimes={2}>
+          <p>{text}</p>
+        </ExpandableComponent>
+      )})}
       {/* START TESTING */}
       <button onClick={handleOnClick}>Change</button>
       <button onClick={logRef}>Log REF</button>
@@ -203,15 +220,15 @@ const Row = ({
 }: CodeLineProps) => {
   const [state, setState] = useState<null | React.ReactElement[][]>(null);
 
-  const IndividualTextElement = <p ref={textElementRef}>{text}</p>;
+  const IndividualTextElement = <p ref={textElementRef}>{text}</p>
   useEffect(() => {
     if (textsAmount) {
       setState([
-        [IndividualTextElement, ...getClonesComponentsArray(
+        getClonesComponentsArray(
           <p>{text}</p>,
-          textsAmount - 1,
+          textsAmount,
           "row-1"
-        )],
+        ),
         getClonesComponentsArray(
           <p>{text}</p>,
           textsAmount,
@@ -222,7 +239,7 @@ const Row = ({
           textsAmount,
           "row-3"
         ),
-      ]);
+      ])
     }
   }, [textsAmount]);
 
@@ -242,4 +259,83 @@ const Row = ({
   );
 };
 
+/**
+ * Component that expand itself to the container width.\
+ * The expands is done copying itself a lot of times
+ * 
+ * @todo
+ * - Add prop to expand even more
+ * - Implement to work with any component
+ */
+const ExpandableComponent = ({children, duplicateTimes = 1, rowStyle, ...props}: any) => {
+  const containerRef = React.useRef<HTMLDivElement>(null)
+  const textRef = React.useRef<HTMLParagraphElement>(null)
+  const [components, setComponents] = useState<null | ReactElement[]>(null)
+
+  const numberToFillContainer = useCompsToFillContainer(textRef.current, containerRef.current)
+
+  useEffect(() => {
+    if (numberToFillContainer) {
+      /**
+       * Sets `components' to the minimun amount of components to fullfil
+       * the `container width`
+       */
+      setComponents(() => {
+        const _components: ReactElement[] = []
+          Array.from(Array(duplicateTimes)).forEach((_, i) => {
+            _components.push((
+              <RowItem style={typeof rowStyle === 'function' ? rowStyle(textRef?.current?.offsetWidth) : rowStyle} key={`EC-BASE-row-${i}`}>
+                {[i === 0 && <RowItem key="base" ref={textRef}>{children}</RowItem>, ...getClonesComponentsArray(
+                  children,
+                  i === 0 ? numberToFillContainer - 1 : numberToFillContainer,
+                  `EC-row-${i}`
+                )]}
+              </RowItem>
+            )
+          )})
+        return _components
+      })
+    }
+  }, [numberToFillContainer])
+
+  return (
+    <div {...props} style={{width: '100%', ...props.style}} className='row' ref={containerRef}>
+      {components
+        ? components
+        : (<div ref={textRef}>
+          {children}
+        </div>)}
+    </div>
+  )
+}
+
+
 export default AnimatedCode;
+
+const useCompsToFillContainer = (compRef: HTMLElement | null, containerRef: HTMLElement | null) => {
+  const [numberToFillContainer, setnumberToFillContainer] = useState(0)
+
+  function calculateComponentsToFillContainer() {
+    const targetWidth = containerRef?.getBoundingClientRect().width
+    const baseWidth = compRef?.offsetWidth
+    if (!targetWidth || !baseWidth) {
+      setnumberToFillContainer(0)
+      return
+    };
+    
+    setnumberToFillContainer(Math.ceil(targetWidth / baseWidth))
+  }
+
+  useEffect(() => {
+    calculateComponentsToFillContainer()
+  }, [containerRef, compRef])
+
+  useEffect(() => {
+
+    window.addEventListener("resize", calculateComponentsToFillContainer);
+    return () => {
+      window.removeEventListener("resize", calculateComponentsToFillContainer);
+    };
+  })
+  return numberToFillContainer
+}

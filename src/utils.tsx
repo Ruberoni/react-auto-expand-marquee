@@ -74,11 +74,11 @@ const defaultAnimationStylesConfig: IAnimationStylesConfig = {
 }
 
 export function getScrollAnimationStyles(
-  container: HTMLElement | null,
+  container: HTMLElement | null | number,
   config = defaultAnimationStylesConfig
 ): React.CSSProperties {
   if (!container) return {};
-  const { width: containerWidth } = container.getBoundingClientRect();
+  const { width: containerWidth } = typeof container === 'number' ? {width: container} : container.getBoundingClientRect();
   return {
     animationName: config.reverse ? 'scrollReverse' : 'scroll',
     animationDuration: SPEED_CONSTANT * containerWidth + 's',
@@ -95,7 +95,6 @@ export function getScrollAnimationStyles(
  * Returns an array of *`length`* elements *`el`* 
  */
 export function getClonesComponentsArray(el: ReactElement, length: number, keySuffix: string) {
-  console.log("🚀 ~ file: utils.tsx ~ line 93 ~ getClonesComponentsArray ~ length", length)
   if (length < 1) return []
   return Array.from(Array(length))
     .map((_, i) => React.cloneElement(el, { key: `${keySuffix}-${i}` }));
