@@ -22,20 +22,28 @@ const ExpandableComponent = (({
   rowStyle,
   ...props
 }: ExpandableComponentProps, ref: ForwardedRef<HTMLDivElement>) => {
+  const [,setReady] = useState(false)
+
   const containerRef = React.useRef<HTMLDivElement>(null);
   const textRef = React.useRef<HTMLParagraphElement>(null);
   const [components, setComponents] = useState<null | ReactElement[]>(null);
-
+  
   const numberToFillContainer = useCompsToFillContainer(
     textRef.current,
     containerRef.current
   );
 
   useEffect(() => {
+    setReady(true)
+  }, [])
+    
+  useEffect(() => {
+    // console.log("A")
     if (numberToFillContainer) {
       /**
        * Sets `components' to the minimun amount of components to fullfil
        * the `container width`
+       * Repeat `duplicateTimes` times
        */
       setComponents(() => {
         const _components: ReactElement[] = [];

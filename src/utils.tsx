@@ -82,7 +82,7 @@ export function getScrollAnimationStyles(
   return {
     animationName: config.reverse ? 'scrollReverse' : 'scroll',
     animationDuration: SPEED_CONSTANT * containerWidth + 's',
-    animationPlayState: config.play ? "paused" : "running",
+    animationPlayState: config.play ? "running" : "paused",
 
     animationTimingFunction: 'linear',
     animationDelay: '0',
