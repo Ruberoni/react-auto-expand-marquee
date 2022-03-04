@@ -8,8 +8,8 @@ export interface ICodeLine extends SyntaxHighlighterProps {
 }
 
 export interface IAnimationStylesConfig {
-  reverse: boolean;
-  play: boolean;
+  reverse?: boolean;
+  play?: boolean;
 }
 
 /**
