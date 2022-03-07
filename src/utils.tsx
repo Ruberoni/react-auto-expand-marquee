@@ -28,6 +28,7 @@ export function getStringComponentsOrChildren(components: ReactNode) {
 
 /**
  * Transforms a component into ICodeLines[]
+ * @unused
  */
 export function getCodeLines(
   component: ReactNode | string
@@ -59,7 +60,8 @@ export function getCodeLines(
 }
 
 /**
- * Returns how many `base` elements fits in `target` element 
+ * Returns how many `base` elements fits in `target` element
+ * @unused
  */
 export function getHowManyFitIn(base: HTMLElement, target: HTMLElement) {
   const { width: targetWidth } = target.getBoundingClientRect();

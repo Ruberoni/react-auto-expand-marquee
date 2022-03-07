@@ -9,14 +9,7 @@ export interface ExpandableComponentProps extends React.HTMLProps<HTMLDivElement
   rowStyle?: (w: number) => React.CSSProperties;
 }
 
-/**
- * Component that expand itself to the container width.\
- * The expands is done copying itself a lot of times
- *
- * @todo
- * - Implement to work with any component
- */
-const ExpandableComponent = (({
+const _ExpandableComponent = (({
   children,
   duplicateTimes = 1,
   rowStyle,
@@ -26,11 +19,19 @@ const ExpandableComponent = (({
 
   const containerRef = React.useRef<HTMLDivElement>(null);
   const textRef = React.useRef<HTMLParagraphElement>(null);
+  const rowItemRef = React.useRef<HTMLElement>();
+  const [rowItemSize, setRowItemSize] = useState(0)
   const [components, setComponents] = useState<null | ReactElement[]>(null);
   
+  useEffect(() => {
+    if (!rowItemSize) {
+      setRowItemSize(rowItemRef.current?.getBoundingClientRect().width as number)
+    }
+  })
+
   const numberToFillContainer = useCompsToFillContainer(
     textRef.current,
-    containerRef.current
+    containerRef.current,
   );
 
   useEffect(() => {
@@ -38,7 +39,6 @@ const ExpandableComponent = (({
   }, [])
     
   useEffect(() => {
-    // console.log("A")
     if (numberToFillContainer) {
       /**
        * Sets `components' to the minimun amount of components to fullfil
@@ -51,14 +51,17 @@ const ExpandableComponent = (({
           _components.push(
             <RowItem
               key={`EC-BASE-row-${i}`}
-              ref={ref}
+              ref={(r) => {
+                if (r && !rowItemRef.current) rowItemRef.current = r
+                return ref
+              }}
             >
               {[
                 i === 0 && (
-                  <ChildrenWrapper _children={children} key="base" ref={textRef} />
+                  <InlineChildren InlineChildren={children} key="base" ref={textRef} />
                 ),
                 ...getClonesComponentsArray(
-                  <ChildrenWrapper _children={children} />,
+                  <InlineChildren InlineChildren={children} />,
                   i === 0 ? numberToFillContainer - 1 : numberToFillContainer,
                   `EC-row-${i}`
                 ),
@@ -79,19 +82,35 @@ const ExpandableComponent = (({
       ref={containerRef}
     >
       {components
-        ? components.map(comp => React.cloneElement(comp, {style: rowStyle?.(containerRef.current?.getBoundingClientRect().width as number)}))
-        : <ChildrenWrapper _children={children} ref={textRef} />}
+        ? components.map(comp => React.cloneElement(comp, {style: rowStyle?.(rowItemRef.current?.getBoundingClientRect().width as number)}))
+        : <InlineChildren InlineChildren={children} ref={textRef} />}
     </div>
   );
 });
 
-const _ExpandableComponent = React.forwardRef(ExpandableComponent);
-export default _ExpandableComponent
+/**
+ * Component that expand itself to the container width.\
+ * The expands is done copying itself a lot of times
+ *
+ * @todo
+ * - Implement to work with any component
+ */
+const ExpandableComponent = React.forwardRef(_ExpandableComponent);
+export default ExpandableComponent
 
-const ChildrenWrapper = React.forwardRef(({_children, ...props}: any, ref) => (
+interface InlineChildrenProps extends Omit<React.HTMLProps<HTMLDivElement>, 'ref'> {
+  InlineChildren: ReactNode
+}
+
+
+const _InlineChildren = ({InlineChildren, ...props}: InlineChildrenProps, ref: ForwardedRef<HTMLDivElement>) => (
   <div ref={ref} {...props}>
-    {_children}
+    {InlineChildren}
   </div>
-))
+)
 
-ChildrenWrapper.displayName = "ChildrenWrapper"
+/**
+ * A helper component to simply pass the `children` as a inline props instead of the usual way and
+ * render in a `div`.
+ */
+const InlineChildren = React.forwardRef(_InlineChildren)

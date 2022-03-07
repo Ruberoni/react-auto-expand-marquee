@@ -1,13 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { CodeLineProps } from "../AnimatedCode";
 import { getClonesComponentsArray } from "../utils";
 import RowItem from "./RowItem";
+
+export interface CodeLineProps
+  extends Omit<React.HTMLProps<HTMLDivElement>, "ref"> {
+  textElementRef: React.ClassAttributes<HTMLParagraphElement>["ref"];
+  rowItemRef: React.Ref<HTMLDivElement>;
+  text: string;
+  textsAmount: number;
+  containerProps: React.HTMLProps<HTMLDivElement>;
+}
 
 /**
  * Renders 2 `RowItem`, one besides the other, in a container that doesn't break.\
  * Each `RowItem` has `textsAmount` elements with `text`.
+ * @unused
  */
- const Row = ({
+const Row = ({
   text,
   textsAmount,
   containerProps,

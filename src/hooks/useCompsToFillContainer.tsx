@@ -1,8 +1,13 @@
 import { useState, useEffect } from "react";
 
+/**
+ * Will return the amount of `compRef` that fits in `containerRef` according to their widths.\
+ * Will recalculate it when the window size changes.
+ */
 const useCompsToFillContainer = (
   compRef: HTMLElement | null,
-  containerRef: HTMLElement | null
+  containerRef: HTMLElement | null,
+  onWindowSizeChange?: () => void
 ) => {
   const [numberToFillContainer, setnumberToFillContainer] = useState(0);
 
@@ -13,7 +18,7 @@ const useCompsToFillContainer = (
       setnumberToFillContainer(0);
       return;
     }
-
+    onWindowSizeChange?.()
     setnumberToFillContainer(Math.ceil(targetWidth / baseWidth));
   }
 

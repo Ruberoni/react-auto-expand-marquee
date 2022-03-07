@@ -1,6 +1,12 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 .container {
   overflow-x: hidden;
-  width: 50%;
+  width: 100%;
 }
 
 .row {
