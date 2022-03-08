@@ -1,14 +1,14 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 
-import AnimatedCode from './AnimatedCode';
+import AutoExpandMarquee from './AutoExpandMarquee';
 
 export default {
   title: 'AnimatedCode',
-  component: AnimatedCode,
-} as ComponentMeta<typeof AnimatedCode>;
+  component: AutoExpandMarquee,
+} as ComponentMeta<typeof AutoExpandMarquee>;
 
-const Template: ComponentStory<typeof AnimatedCode> = (args) => <AnimatedCode {...args}>{args.children}</AnimatedCode>;
+const Template: ComponentStory<typeof AutoExpandMarquee> = (args) => <AutoExpandMarquee {...args}>{args.children}</AutoExpandMarquee>;
 
 export const Simple = Template.bind({});
 Simple.args = {

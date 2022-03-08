@@ -1,6 +1,6 @@
 import React, { Children, CSSProperties } from 'react'
 import ReactDOM from 'react-dom'
-import AnimatedCode from './AnimatedCode'
+import AutoExpandMarquee from './AutoExpandMarquee'
 import {
   Light as SyntaxHighlighter,
   SyntaxHighlighterProps,
@@ -24,7 +24,7 @@ const customStyle: CSSProperties = {
 
 ReactDOM.render(
   <React.StrictMode>
-    <AnimatedCode animationConfig={{mix: false}} style={{width: '50%'}}>
+    <AutoExpandMarquee animationConfig={{mix: false}} style={{width: '50%'}}>
       <SyntaxHighlighter /* PreTag={PreTag} */ customStyle={customStyle} language="javascript" style={docco}>
         {codeString}
       </SyntaxHighlighter>
@@ -37,7 +37,7 @@ ReactDOM.render(
       <SyntaxHighlighter /* PreTag={PreTag} */  customStyle={customStyle} language="javascript" style={docco}>
         {codeString3}
       </SyntaxHighlighter>
-    </AnimatedCode>
+    </AutoExpandMarquee>
   </React.StrictMode>,
   document.getElementById('root')
 )

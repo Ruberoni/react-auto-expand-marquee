@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import "./AnimatedCode.css";
+import "./AutoExpandMarquee.css";
 import ExpandableComponent from "./components/ExpandableComponent";
 import { getScrollAnimationStyles } from "./utils";
 

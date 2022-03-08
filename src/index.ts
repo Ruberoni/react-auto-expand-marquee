@@ -1,1 +1,3 @@
-export { default as AnimatedCode } from './AnimatedCode'
+import AutoExpandMarquee from './AutoExpandMarquee'
+
+export default AutoExpandMarquee
