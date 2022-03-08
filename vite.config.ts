@@ -8,7 +8,8 @@ export default defineConfig({
   build: {
     lib: {
       entry: path.resolve(__dirname, 'src/index.ts'),
-      fileName: 'react-auto-expand-marquee'
+      name: 'react-auto-expand-marquee',
+      fileName: (format) => `react-auto-expand-marquee.${format}.js`
     },
   }
 })

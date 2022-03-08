@@ -31,6 +31,7 @@
   ],
   "main": "./dist/react-auto-expand-marquee.umd.js",
   "module": "./dist/react-auto-expand-marquee.es.js",
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/react-auto-expand-marquee.es.js",
