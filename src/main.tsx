@@ -24,7 +24,7 @@ const customStyle: CSSProperties = {
 
 ReactDOM.render(
   <React.StrictMode>
-    <AutoExpandMarquee animationConfig={{mix: false}} style={{width: '50%'}}>
+    <AutoExpandMarquee animationConfig={{mix: false}} style={{width: '50%', fontSize: '2em'}}>
       <SyntaxHighlighter /* PreTag={PreTag} */ customStyle={customStyle} language="javascript" style={docco}>
         {codeString}
       </SyntaxHighlighter>

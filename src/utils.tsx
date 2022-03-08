@@ -7,10 +7,6 @@ export interface ICodeLine extends SyntaxHighlighterProps {
   text: string;
 }
 
-export interface IAnimationStylesConfig {
-  reverse?: boolean;
-  play?: boolean;
-}
 
 /**
  * Returns only the components that are strings
@@ -40,12 +36,12 @@ export function getCodeLines(
   } else if (
     React.isValidElement(component) &&
     typeof component.props.children === "string"
-  ) {
-    return component.props.children.split("\n").map((text: string) => ({
-      text,
-      ...component.props,
-    }));
-  }
+    ) {
+      return component.props.children.split("\n").map((text: string) => ({
+        text,
+        ...component.props,
+      }));
+    }
 
   if (Array.isArray(component)) {
     const stringComponents = getStringComponentsOrChildren(component);
@@ -69,27 +65,47 @@ export function getHowManyFitIn(base: HTMLElement, target: HTMLElement) {
   if (baseWidth < 1) throw new Error("[getHowManyFitIn] `baseWidth` cannot be smaller than 1");
   return Math.ceil(targetWidth / baseWidth);
 }
+export interface IAnimationStylesConfig {
+  reverse: boolean;
+  play: boolean;
+  speed: number;
+  delay: number;
+  timingFunction: React.CSSProperties['animationTimingFunction'];
+  iterationCount: React.CSSProperties['animationIterationCount'];
+  direction: React.CSSProperties['animationDirection'];
+}
 
 const defaultAnimationStylesConfig: IAnimationStylesConfig = {
   reverse: false,
-  play: false
+  play: false,
+  speed: SPEED_CONSTANT,
+  timingFunction: 'linear',
+  delay: 0,
+  iterationCount: 'infinite',
+  direction: 'normal'
 }
 
 export function getScrollAnimationStyles(
   container: HTMLElement | null | number,
-  config = defaultAnimationStylesConfig
+  config: Partial<IAnimationStylesConfig>
 ): React.CSSProperties {
   if (!container) return {};
   const { width: containerWidth } = typeof container === 'number' ? {width: container} : container.getBoundingClientRect();
+  
+  const _config = {
+    ...defaultAnimationStylesConfig,
+    ...config
+  }
+  
   return {
-    animationName: config.reverse ? 'scrollReverse' : 'scroll',
-    animationDuration: SPEED_CONSTANT * containerWidth + 's',
-    animationPlayState: config.play ? "running" : "paused",
+    animationName: _config.reverse ? 'scrollReverse' : 'scroll',
+    animationDuration: _config.speed * containerWidth + 's',
+    animationPlayState: _config.play ? "running" : "paused",
 
-    animationTimingFunction: 'linear',
-    animationDelay: '0',
-    animationIterationCount: 'infinite',
-    animationDirection: "normal",
+    animationTimingFunction: _config.timingFunction,
+    animationDelay: _config.delay.toString(),
+    animationIterationCount: _config.iterationCount,
+    animationDirection: _config.direction,
   };
 }
 

@@ -1,20 +1,20 @@
 import React, { ReactNode } from "react";
 import "./AutoExpandMarquee.css";
 import ExpandableComponent from "./components/ExpandableComponent";
-import { getScrollAnimationStyles } from "./utils";
+import { getScrollAnimationStyles, IAnimationStylesConfig } from "./utils";
 
-export interface IAnimationConfig {
+export interface IMarqueeAnimationConfig extends Partial<IAnimationStylesConfig> {
   mix: boolean;
-  isPlaying: boolean;
 }
-export interface AutoExpandMarqueeProps extends React.HTMLProps<HTMLDivElement> {
+export interface AutoExpandMarqueeProps {
   children: ReactNode;
-  animationConfig?: Partial<IAnimationConfig>;
+  animationConfig?: Partial<IMarqueeAnimationConfig>;
+  style: React.CSSProperties;
 }
 
-const defaultAnimationConfig: IAnimationConfig = {
+const defaultAnimationConfig: IMarqueeAnimationConfig = {
   mix: false,
-  isPlaying: true,
+  play: true,
 };
 
 /**
@@ -24,21 +24,21 @@ const defaultAnimationConfig: IAnimationConfig = {
 function AutoExpandMarquee({
   children,
   animationConfig,
-  ...divProps
+  style,
 }: AutoExpandMarqueeProps) {
-  const _animationConfig = {
+  const _marqueeAnimationConfig = {
     ...defaultAnimationConfig,
     ...animationConfig,
   };
 
   return (
-    <div {...divProps}>
+    <div style={style}>
       {React.Children.map(children, (child, i) => {
-        const reverse = _animationConfig.mix && Boolean(i % 2 === 0);
+        const reverse = _marqueeAnimationConfig.mix && Boolean(i % 2 === 0);
         const scrollAnimationStyles = (w: number) =>
           getScrollAnimationStyles(w, {
-            play: _animationConfig.isPlaying,
             reverse,
+            ..._marqueeAnimationConfig
           });
 
         return (
