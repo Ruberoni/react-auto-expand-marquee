@@ -7,7 +7,7 @@ export interface IAnimationConfig {
   mix: boolean;
   isPlaying: boolean;
 }
-export interface AnimatedCodeProps extends React.HTMLProps<HTMLDivElement> {
+export interface AutoExpandMarqueeProps extends React.HTMLProps<HTMLDivElement> {
   children: ReactNode;
   animationConfig?: Partial<IAnimationConfig>;
 }
@@ -18,20 +18,14 @@ const defaultAnimationConfig: IAnimationConfig = {
 };
 
 /**
- * @todo
- * - [Maybe] change this component name to AnimatedText (or similiar)
- * and make it only work in its most simpler way with plain text, but sufficiently
- * customizable to be able to change the text renderer component so I can use SyntaxHighlighter.
- * Then make a wrapper component with SyntaxHighlighter
- *
  * @bug
  * - Changing windows size breaks animation speed
  */
-function AnimatedCode({
+function AutoExpandMarquee({
   children,
   animationConfig,
   ...divProps
-}: AnimatedCodeProps) {
+}: AutoExpandMarqueeProps) {
   const _animationConfig = {
     ...defaultAnimationConfig,
     ...animationConfig,
@@ -62,4 +56,4 @@ function AnimatedCode({
   );
 }
 
-export default AnimatedCode;
+export default AutoExpandMarquee;
