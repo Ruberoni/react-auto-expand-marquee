@@ -5,6 +5,9 @@ import RowItem from "./RowItem";
 
 export interface ExpandableComponentProps extends React.HTMLProps<HTMLDivElement>{
   children: ReactNode;
+  /**
+   * Use this to duplicate even more this component.
+   */
   duplicateTimes?: number;
   rowStyle?: (w: number) => React.CSSProperties;
 }
@@ -89,7 +92,7 @@ const _ExpandableComponent = (({
 });
 
 /**
- * Component that expand itself to the container width.\
+ * Component that expand itself to the container width.
  * The expands is done copying itself a lot of times
  *
  * @todo

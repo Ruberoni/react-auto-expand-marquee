@@ -10,7 +10,7 @@ export default {
 
 const Template: ComponentStory<typeof ExpandableComponent> = (args) => <ExpandableComponent {...args}>{args.children}</ExpandableComponent>;
 
-export const Simple = Template.bind({});
-Simple.args = {
+export const Default = Template.bind({});
+Default.args = {
   children: <p>This is will expand itself to the component width.</p>
 };

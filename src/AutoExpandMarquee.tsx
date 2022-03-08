@@ -8,8 +8,14 @@ export interface IMarqueeAnimationConfig extends Partial<IAnimationStylesConfig>
 }
 export interface AutoExpandMarqueeProps {
   children: ReactNode;
+  /**
+   * Customize the animation
+   */
   animationConfig?: Partial<IMarqueeAnimationConfig>;
-  style: React.CSSProperties;
+  /**
+   * Container style
+   */
+  style?: React.CSSProperties;
 }
 
 const defaultAnimationConfig: IMarqueeAnimationConfig = {
@@ -23,7 +29,7 @@ const defaultAnimationConfig: IMarqueeAnimationConfig = {
  */
 function AutoExpandMarquee({
   children,
-  animationConfig,
+  animationConfig = defaultAnimationConfig,
   style,
 }: AutoExpandMarqueeProps) {
   const _marqueeAnimationConfig = {
