@@ -66,8 +66,17 @@ export function getHowManyFitIn(base: HTMLElement, target: HTMLElement) {
   return Math.ceil(targetWidth / baseWidth);
 }
 export interface IAnimationStylesConfig {
+  /**
+   * Controls if the animation will go from right to left
+   */
   reverse: boolean;
+  /**
+   * Controls if the animation is running or not
+   */
   play: boolean;
+  /**
+   * Controls de animation speed
+   */
   speed: number;
   delay: number;
   timingFunction: React.CSSProperties['animationTimingFunction'];

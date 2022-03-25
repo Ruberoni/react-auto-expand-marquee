@@ -4,6 +4,9 @@ import ExpandableComponent from "./components/ExpandableComponent";
 import { getScrollAnimationStyles, IAnimationStylesConfig } from "./utils";
 
 export interface IMarqueeAnimationConfig extends Partial<IAnimationStylesConfig> {
+  /**
+   * When set to `true` each row will move to a different side
+   */
   mix: boolean;
 }
 export interface AutoExpandMarqueeProps {
@@ -13,7 +16,7 @@ export interface AutoExpandMarqueeProps {
    */
   animationConfig?: Partial<IMarqueeAnimationConfig>;
   /**
-   * Container style
+   * Styles to apply to the Marquee container
    */
   style?: React.CSSProperties;
 }
